@@ -23,10 +23,10 @@ func main() {
 	envUsername := os.Getenv("JUNAME")
 	envCompanyName := os.Getenv("JCOMPNAME")
 
-	if len(*message) == 0 || len(*issue) == 0 || len(*duration) == 0 {
-		fmt.Println("-m -i and -d flags must be set")
-		return
-	}
+	// if len(*message) == 0 || len(*issue) == 0 || len(*duration) == 0 {
+	// 	fmt.Println("-m -i and -d flags must be set")
+	// 	return
+	// }
 
 	if len(*username) == 0 {
 		if len(envUsername) == 0 {
@@ -35,9 +35,11 @@ func main() {
 			*username = envUsername
 		}
 	}
+
 	if len(*pass) == 0 {
 		pass = fetchPass()
 	}
+
 	if len(*companyName) == 0 {
 		if len(envCompanyName) != 0 {
 			companyName = &envCompanyName
@@ -45,6 +47,21 @@ func main() {
 			companyName = fetchCompanyName()
 		}
 	}
+
+	fmt.Print("\n");
+
+	if len(*message) == 0 {
+		message = fetchUserInput("Enter log message: ")
+	}
+
+	if len(*issue) == 0 {
+		issue = fetchUserInput("Enter issue ID to Log [Ex. HPI-100]: ")
+	}
+
+	if len(*duration) == 0 {
+		duration = fetchUserInput("Enter time you worked [Ex. 1d, 1.5h, 30m]: ")
+	}
+
 	jiraClientObj := jiraClient{UserName: *username, Pass: *pass, Url: "https://" + *companyName + ".atlassian.net/"}
 	jiraClientObj.logHours(*issue, *message, *duration)
 }
@@ -77,4 +94,13 @@ func fetchUsername() *string {
 	username, _ := reader.ReadString('\n')
 	username = strings.TrimSpace(username)
 	return &username
+}
+
+func fetchUserInput(question string) *string {
+	reader := bufio.NewReader(os.Stdin);
+	fmt.Print(question)
+	userInput, _ := reader.ReadString('\n');
+	userInput = strings.TrimSpace(userInput)
+
+	return &userInput;
 }
